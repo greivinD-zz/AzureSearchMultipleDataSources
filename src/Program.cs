@@ -35,8 +35,8 @@ namespace AzureSearch.SDKHowTo
             await CreateIndexAsync(indexName, indexClient);
 
             //Set up a SQLDb data source and indexer, and run the indexer to import data
-            Console.WriteLine("Indexing SQL data...\n");
-            await CreateAndRunSqlDbIndexerAsync(indexName, indexerClient);
+           Console.WriteLine("Indexing SQL data...\n");
+           await CreateAndRunSqlDbIndexerAsync(indexName, indexerClient);
 
             // Set up a CosmosDB data source and indexer, and run the indexer to import hotel data
             Console.WriteLine("Indexing Cosmos DB hotel data...\n");
@@ -87,7 +87,7 @@ namespace AzureSearch.SDKHowTo
                 name: configuration["SqlDBDatabaseName"],
                 type: SearchIndexerDataSourceType.AzureSql,
                 connectionString: sqlConnectString,
-                container: new SearchIndexerDataContainer("RPENames"));
+                container: new SearchIndexerDataContainer("entity_details_poc_1"));
 
             // The Cosmos DB data source does not need to be deleted if it already exists,
             // but the connection string might need to be updated if it has changed.            
@@ -97,26 +97,15 @@ namespace AzureSearch.SDKHowTo
 
             // Add a field mapping to match the globalid field in the documents to 
             // the DocId key field in the index
-            List<FieldMapping> map = new List<FieldMapping> {
-                new FieldMapping("globalid")
-                {
-                    TargetFieldName =  "entity_key"
-                }
-            };
 
             SearchIndexer sqlDbIndexer = new SearchIndexer(
-                name: "hotel-rooms-sql-indexer",
+                name: "sql-indexer",
                 dataSourceName: sqlDbDataSource.Name,
                 targetIndexName: indexName)
             {
                 Schedule = new IndexingSchedule(TimeSpan.FromDays(1))
             };
 
-            // Setup the mappings in the Cosmos DB Indexer
-            foreach (FieldMapping fieldMapping in map)
-            {
-                sqlDbIndexer.FieldMappings.Add(fieldMapping);
-            }
 
             // Indexers keep metadata about how much they have already indexed.
             // If we already ran this sample, the indexer will remember that it already
@@ -159,7 +148,7 @@ namespace AzureSearch.SDKHowTo
                 name: configuration["CosmosDBDatabaseName"],
                 type: SearchIndexerDataSourceType.CosmosDb,
                 connectionString: cosmosConnectString,
-                container: new SearchIndexerDataContainer("CASE_ITEM"));
+                container: new SearchIndexerDataContainer("casecollection"));
 
             // The Cosmos DB data source does not need to be deleted if it already exists,
             // but the connection string might need to be updated if it has changed.            
@@ -167,28 +156,17 @@ namespace AzureSearch.SDKHowTo
 
             Console.WriteLine("Creating Cosmos DB indexer...\n");
 
-            // Add a field mapping to match the globalid field in the documents to 
-            // the DocId key field in the index
-           /* List<FieldMapping> map = new List<FieldMapping> {
-                new FieldMapping("globalid")
-                {
-                    TargetFieldName =  "DocId"
-                }
-            };*/
 
                 List<FieldMapping> map = new List<FieldMapping> {
-               /* new FieldMapping("globalid")
+
+                new FieldMapping("entity_key")
                 {
-                    TargetFieldName =  "entity_key"
-                },*/
-                new FieldMapping("Id")
-                {
-                    TargetFieldName =  "CASE_ID"
+                    TargetFieldName =  "uniqueid"
                 }
             };
 
             SearchIndexer cosmosDbIndexer = new SearchIndexer(
-                name: "hotel-rooms-cosmos-indexer",
+                name: "cosmos-indexer",
                 dataSourceName: cosmosDbDataSource.Name,
                 targetIndexName: indexName)
             {
@@ -196,6 +174,7 @@ namespace AzureSearch.SDKHowTo
             };
 
             // Setup the mappings in the Cosmos DB Indexer
+           
             foreach (FieldMapping fieldMapping in map)
             {
                 cosmosDbIndexer.FieldMappings.Add(fieldMapping);
@@ -211,7 +190,9 @@ namespace AzureSearch.SDKHowTo
                 //Rest the indexer if it exsits.
                 await indexerClient.ResetIndexerAsync(cosmosDbIndexer.Name);
             }
-            catch (RequestFailedException ex) when (ex.Status == 404) 
+            catch (RequestFailedException ex) 
+            
+            when (ex.Status == 404) 
             {
                 //if the specified indexer not exist, 404 will be thrown.
             }

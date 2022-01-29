@@ -9,6 +9,9 @@ namespace AzureSearch.SDKHowTo
     public class Case
     {
         [SimpleField(IsFilterable = true)]
+        public string entity_key { get; set; }
+
+        [SimpleField(IsFilterable = true)]
         public string CASE_ID { get; set; }
 
         [SearchableField(IsFilterable = true)]

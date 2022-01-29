@@ -9,9 +9,9 @@ namespace AzureSearch.SDKHowTo
     public partial class Entity
     {
         [SimpleField(IsKey = true)]
-        public string Id { get; set; }
+        public string uniqueid { get; set; }
 
-        public string entity_key { get; set; }
+        //public string entity_key { get; set; }
 
         [SearchableField(IsFilterable = true)]
         public string name { get; set; }
@@ -58,6 +58,19 @@ namespace AzureSearch.SDKHowTo
         [SearchableField(IsFilterable = true, IsSortable = true)]
         public string Status { get; set; }
 
-        public Case[] Cases { get; set; }
+        [SimpleField(IsFilterable = true)]
+        public string entity_key { get; set; }
+
+        [SimpleField(IsFilterable = true)]
+        public string CASE_ID { get; set; }
+
+        [SearchableField(IsFilterable = true)]
+        public string CASE_TYPE { get; set; }
+
+        [SearchableField(IsFilterable = true)]
+        public string CASE_STATUS { get; set; }
+
+        [SearchableField(AnalyzerName = LexicalAnalyzerName.Values.EnLucene)]
+        public string CREATION_REASON { get; set; }
     }
 }
